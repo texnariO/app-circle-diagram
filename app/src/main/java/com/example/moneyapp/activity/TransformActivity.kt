@@ -1,25 +1,39 @@
 package com.example.moneyapp.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
 import com.example.moneyapp.R
 import com.example.moneyapp.db.AppDatabase
 import com.example.moneyapp.db.DataDao
+import com.example.moneyapp.models.Data
+import com.example.moneyapp.util.CategoryAll
 
 class TransformActivity : AppCompatActivity() {
 
     private lateinit var dataDao: DataDao
-
-
+    private lateinit var mSpinner: Spinner
+    private lateinit var mText: EditText
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_transform)
-
+        mSpinner = findViewById(R.id.spinner)
+        val adapter = ArrayAdapter(this,android.R.layout.simple_spinner_item, CategoryAll)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        mSpinner.adapter = adapter
+        mText = findViewById(R.id.editTextValue)
         setupDatabase()
-        if(intent.getStringExtra("button")=="add")
-            loadToDataAddMenu()
-        else loadToDataMinusMenu()
+        val buttonAccept = findViewById<Button>(R.id.bAccept)
+        buttonAccept.setOnClickListener{
+            if(intent.getStringExtra("button")=="add")
+                loadToDataAddMenu()
+            else loadToDataMinusMenu()
+        }
     }
 
     private fun setupDatabase(){
@@ -31,10 +45,34 @@ class TransformActivity : AppCompatActivity() {
     }
 
     private fun loadToDataAddMenu(){
-
+        val selected = mSpinner.selectedItem.toString()
+        val dataFromDao = dataDao.loadInfoAboutCategory(selected)
+        if(dataFromDao != null){
+            val newDataDao = Data(dataFromDao.uid, dataFromDao.value!! + mText.text.toString().toFloat(),dataFromDao.category)
+            dataDao.updateData(newDataDao)
+        }
+        else {
+            val newDataDao = Data(value = mText.text.toString().toFloat(),category = mSpinner.selectedItem.toString(),uid = mSpinner.selectedItemPosition)
+            dataDao.insertData(newDataDao)
+        }
+        val intent = Intent(this,HomeActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun loadToDataMinusMenu(){
-        //TODO
+        val selected = mSpinner.selectedItem.toString()
+        val dataFromDao = dataDao.loadInfoAboutCategory(selected)
+        if(dataFromDao != null){
+            val newDataDao = Data(dataFromDao.uid, dataFromDao.value!! - mText.text.toString().toFloat(),dataFromDao.category)
+            dataDao.updateData(newDataDao)
+        }
+        else {
+            val newDataDao = Data(value = mText.text.toString().toFloat(),category = mSpinner.selectedItem.toString(),uid = mSpinner.selectedItemPosition)
+            dataDao.insertData(newDataDao)
+        }
+        val intent = Intent(this,HomeActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }

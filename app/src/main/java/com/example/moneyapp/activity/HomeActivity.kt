@@ -67,14 +67,14 @@ class HomeActivity : AppCompatActivity() {
         val dataEntries = dataDao.getAll()
         val entries = ArrayList<PieEntry>()
         for (data in dataEntries){
-            entries.add(PieEntry(data.value,data.category))
+            entries.add(PieEntry(data.value!!,data.category))
         }
-/*        val entries = ArrayList<PieEntry>()*/
-/*        entries.add(PieEntry(0.2f,"Food"))*/
-/*        entries.add(PieEntry(0.15f,"Medical")*/
-/*        entries.add(PieEntry(0.10f,"Shop"))*/
-/*        entries.add(PieEntry(0.25f,"Home"))*/
-/*        entries.add(PieEntry(0.28f,"IT"))*/
+/*        val entries = ArrayList<PieEntry>()
+        entries.add(PieEntry(0.2f,"Food"))
+        entries.add(PieEntry(0.15f,"Medical"))
+        entries.add(PieEntry(0.10f,"Shop"))
+        entries.add(PieEntry(0.25f,"Home"))
+        entries.add(PieEntry(0.28f,"IT"))*/
 
         val colors = ArrayList<Int>()
         for (color in Colors){

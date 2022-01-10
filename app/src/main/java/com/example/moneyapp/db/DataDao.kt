@@ -19,7 +19,7 @@ interface DataDao {
     fun updateData(data: Data)
 
     @Insert
-    fun insert(data :Data)
+    fun insertData(data :Data)
 
     @Delete
     fun delete(data: Data)
