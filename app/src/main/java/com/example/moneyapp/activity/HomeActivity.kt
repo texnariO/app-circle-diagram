@@ -5,10 +5,14 @@ import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.example.moneyapp.R
 import com.example.moneyapp.db.AppDatabase
 import com.example.moneyapp.db.DataDao
+import com.example.moneyapp.models.RecyclerItem
+import com.example.moneyapp.util.Adapter
 import com.example.moneyapp.util.Colors
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
@@ -17,15 +21,20 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 
 class HomeActivity : AppCompatActivity() {
-
+    //PieChart - cycle diagram
     private lateinit var pieChart: PieChart
+    //Buttons
     private lateinit var buttonAdd: Button
     private lateinit var buttonMinus: Button
+    //ListView
+    private lateinit var recyclerView: RecyclerView
+    //Database - Room DB
     private lateinit var dataDao: DataDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        recyclerView = findViewById(R.id.dynamic_list)
         pieChart = findViewById(R.id.circleDiagram)
         setupDatabase()
         setupPieChart()
@@ -36,7 +45,6 @@ class HomeActivity : AppCompatActivity() {
             intent.putExtra("button","add")
             startActivity(intent)
         }
-
         buttonMinus = findViewById(R.id.ButtonMinus)
         buttonMinus.setOnClickListener{
             val intent = Intent(this,TransformActivity::class.java)
@@ -44,7 +52,6 @@ class HomeActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-
     private fun setupDatabase(){
         val db = Room.databaseBuilder(
             applicationContext,
@@ -66,16 +73,16 @@ class HomeActivity : AppCompatActivity() {
         //TODO load data from DB
         val dataEntries = dataDao.getAll()
         val entries = ArrayList<PieEntry>()
-        for (data in dataEntries){
-            entries.add(PieEntry(data.value!!,data.category))
-        }
-/*        val entries = ArrayList<PieEntry>()
-        entries.add(PieEntry(0.2f,"Food"))
-        entries.add(PieEntry(0.15f,"Medical"))
-        entries.add(PieEntry(0.10f,"Shop"))
-        entries.add(PieEntry(0.25f,"Home"))
-        entries.add(PieEntry(0.28f,"IT"))*/
+        val listDate = mutableListOf<RecyclerItem>()
+        var i =0
+        if (dataEntries!=null) {
+            for (data in dataEntries) {
+                entries.add(PieEntry(data.value!!, data.category))
 
+                listDate.add(RecyclerItem(data.value, data.category))
+                i++
+            }
+        }
         val colors = ArrayList<Int>()
         for (color in Colors){
             colors.add(color)
@@ -92,6 +99,9 @@ class HomeActivity : AppCompatActivity() {
 
         pieChart.data  = data
         pieChart.invalidate()
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = Adapter(listDate)
     }
 
 }

@@ -2,10 +2,7 @@ package com.example.moneyapp.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
 import com.example.moneyapp.R
@@ -52,7 +49,9 @@ class TransformActivity : AppCompatActivity() {
             dataDao.updateData(newDataDao)
         }
         else {
-            val newDataDao = Data(value = mText.text.toString().toFloat(),category = mSpinner.selectedItem.toString(),uid = mSpinner.selectedItemPosition)
+            println("**************************")
+            println(mSpinner.selectedItemPosition)
+            val newDataDao = Data(value = mText.text.toString().toFloat(),category = mSpinner.selectedItem.toString(),uid = mSpinner.selectedItemPosition+1)
             dataDao.insertData(newDataDao)
         }
         val intent = Intent(this,HomeActivity::class.java)
@@ -64,15 +63,21 @@ class TransformActivity : AppCompatActivity() {
         val selected = mSpinner.selectedItem.toString()
         val dataFromDao = dataDao.loadInfoAboutCategory(selected)
         if(dataFromDao != null){
-            val newDataDao = Data(dataFromDao.uid, dataFromDao.value!! - mText.text.toString().toFloat(),dataFromDao.category)
-            dataDao.updateData(newDataDao)
-        }
-        else {
-            val newDataDao = Data(value = mText.text.toString().toFloat(),category = mSpinner.selectedItem.toString(),uid = mSpinner.selectedItemPosition)
-            dataDao.insertData(newDataDao)
+            if(dataFromDao.value!! - mText.text.toString().toFloat() <= 0){
+                dataDao.delete(dataFromDao)
+            }
+            else {
+                val newDataDao = Data(
+                    dataFromDao.uid,
+                    dataFromDao.value!! - mText.text.toString().toFloat(),
+                    dataFromDao.category
+                )
+                dataDao.updateData(newDataDao)
+            }
         }
         val intent = Intent(this,HomeActivity::class.java)
         startActivity(intent)
+        Toast.makeText(this,R.string.error_not_category,Toast.LENGTH_SHORT).show()
         finish()
     }
 }
